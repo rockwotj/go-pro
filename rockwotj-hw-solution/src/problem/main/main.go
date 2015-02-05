@@ -80,7 +80,6 @@ func sudokuSolverHelper(b sudoku.Board, solution chan sudoku.Board, r int, c int
     if !b.IsPositionValid(value, r, c) {
         return
     }
-    //b.Print()
     row, col := nextCell(r, c)
     for v := 1; v <= sudoku.BOARD_SIZE; v++ {
          board := b.Copy()

@@ -1,2 +1,2 @@
-export GOPATH=/D/Classes/CSSE/403/Project/rockwotj-hw-solution
+export GOPATH=$PWD
 go install problem/main

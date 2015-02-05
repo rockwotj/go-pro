@@ -3,7 +3,6 @@ package sudoku
 import "fmt"
 
 /* START BOARD FUNCTIONS */
-
 const BOARD_SIZE int = 9
 
 type Board struct {
@@ -52,6 +51,8 @@ func (b *Board) IsFull() bool {
     return true	
 }
 
+// WARNING: Side effects, modifies the board if that spot is not taken.
+// Even if it is an invalid position
 func (b *Board) IsPositionValid(value int, row int, col int) bool {
 	if b.Cells[row][col] != 0 {
         return true
