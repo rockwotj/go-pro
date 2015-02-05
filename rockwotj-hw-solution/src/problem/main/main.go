@@ -15,7 +15,7 @@ func main() {
     board.Cells[1][0] = 5
     board.Cells[1][1] = 4
     board.Cells[2][1] = 1
-    
+
     board.Cells[0][3] = 2
     board.Cells[0][5] = 7
     board.Cells[1][4] = 6
@@ -56,12 +56,13 @@ func main() {
     board.Cells[6][7] = 7
     board.Cells[7][7] = 6
     board.Cells[7][8] = 9
-    fmt.Println("==Initial Board==")
+
+    fmt.Println("=== Initial Board ===")
     board.Print()
     solution := make(chan sudoku.Board)
     go sudokuSolver(board, solution)
     board = <-solution
-    fmt.Println("=== Solution! ===")
+    fmt.Println("====  Solution!  ====")
     board.Print()
 }
 

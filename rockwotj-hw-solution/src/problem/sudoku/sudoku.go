@@ -23,8 +23,14 @@ func (b *Board) Print() {
     for i := 0; i < BOARD_SIZE; i++ {
     	for j := 0; j < BOARD_SIZE; j++ {
             fmt.Print(b.Cells[i][j], " ")
+            if j == 2 || j == 5 {
+                fmt.Print("| ")
+            }
         }
         fmt.Println()
+        if i == 2 || i == 5 {
+            fmt.Println("------+-------+------")
+        }
     }
     fmt.Println()
 }
