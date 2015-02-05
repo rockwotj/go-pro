@@ -2,16 +2,16 @@ package main
 
 import (
         "fmt"
-        "problem/suduko"
+        "problem/sudoku"
 )
 
 func main() {
-    board := suduko.Board{}
+    board := sudoku.Board{}
     board.Initialize()
-    for i := 0; i < suduko.BOARD_SIZE; i++ {
+    for i := 0; i < sudoku.BOARD_SIZE; i++ {
         board.Cells[0][i] = i + 1;
     }
-    for i := 1; i < suduko.BOARD_SIZE; i++ {
+    for i := 1; i < sudoku.BOARD_SIZE; i++ {
         board.Cells[i][0] = i + 1;
     }
     board.Cells[8][8] = 1
