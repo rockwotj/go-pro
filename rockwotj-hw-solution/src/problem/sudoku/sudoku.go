@@ -27,6 +27,18 @@ func (b *Board) Print() {
         }
         fmt.Println()
     }
+    fmt.Println()
+}
+
+func (b *Board) Copy() Board {
+    board := Board{}
+    board.Initialize()
+    for i := 0; i < BOARD_SIZE; i++ {
+        for j := 0; j < BOARD_SIZE; j++ {
+            board.Cells[i][j] = b.Cells[i][j]
+        }
+    }
+    return board
 }
 
 func (b *Board) IsFull() bool {
@@ -40,16 +52,19 @@ func (b *Board) IsFull() bool {
     return true	
 }
 
-func (b Board) IsPositionValid(value int, row int, col int) bool {
-	b.Cells[row][col] = value
+func (b *Board) IsPositionValid(value int, row int, col int) bool {
+	if b.Cells[row][col] != 0 {
+        return true
+    }
+    b.Cells[row][col] = value
     return b.IsRowValid(row) && b.IsColValid(col) && b.IsSquareValid(row, col)
 }
 
-func (b Board) IsRowValid(r int) bool {
+func (b *Board) IsRowValid(r int) bool {
     return IsValidSequence(b.Cells[r])
 }
 
-func (b Board) IsColValid(c int) bool {
+func (b *Board) IsColValid(c int) bool {
     column := make([]int, BOARD_SIZE)
     for i := 0; i < BOARD_SIZE; i++ {
         column[i] = b.Cells[i][c]
@@ -57,12 +72,14 @@ func (b Board) IsColValid(c int) bool {
     return IsValidSequence(column)
 }
 
-func (b Board) IsSquareValid(r int, c int) bool {
+func (b *Board) IsSquareValid(r int, c int) bool {
     c /= 3
     r /= 3
     c *= 3
     r *= 3
-    square := append(b.Cells[r][c:c + 3], b.Cells[r + 1][c:c + 3]...)
+    square := make([]int, 0)
+    square = append(square, b.Cells[r][c:c + 3]...)
+    square = append(square, b.Cells[r + 1][c:c + 3]...)
     square = append(square, b.Cells[r + 2][c:c + 3]...)
     return IsValidSequence(square)	
 }
@@ -83,5 +100,4 @@ func IsValidSequence(slice []int) bool {
     }
     return true
 }
-
 /* END BOARD FUNCTIONS */
