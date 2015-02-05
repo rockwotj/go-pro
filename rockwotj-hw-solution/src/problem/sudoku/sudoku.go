@@ -22,7 +22,12 @@ func (b *Board) Initialize() {
 func (b *Board) Print() {
     for i := 0; i < BOARD_SIZE; i++ {
     	for j := 0; j < BOARD_SIZE; j++ {
-            fmt.Print(b.Cells[i][j], " ")
+            value := b.Cells[i][j]
+            if value == 0 {
+                fmt.Print(". ")
+            } else {
+                fmt.Print(value, " ")
+            }
             if j == 2 || j == 5 {
                 fmt.Print("| ")
             }
