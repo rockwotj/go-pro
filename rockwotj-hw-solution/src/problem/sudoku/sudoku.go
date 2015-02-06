@@ -1,13 +1,57 @@
 package sudoku
 
-import "fmt"
+import (
+    "fmt"
+    "bytes"
+    "strconv"
+)
 
-/* START BOARD FUNCTIONS */
 const BOARD_SIZE int = 9
 
 type Board struct {
     Cells [][]int
 }
+
+func NextCell(r int, c int) (int, int) {
+    col := c + 1
+    if col == BOARD_SIZE {
+        return r + 1, 0
+    }
+    return r, col
+}
+
+func BoardFromString(s string) Board {
+    board := Board{}
+    board.Initialize()
+    row := 0
+    col := 0
+    for _, c := range s {
+        switch c {
+        case '1':
+            board.Cells[row][col] = 1
+        case '2':
+            board.Cells[row][col] = 2
+        case '3':
+            board.Cells[row][col] = 3
+        case '4':
+            board.Cells[row][col] = 4
+        case '5':
+            board.Cells[row][col] = 5
+        case '6':
+            board.Cells[row][col] = 6
+        case '7':
+            board.Cells[row][col] = 7
+        case '8':
+            board.Cells[row][col] = 8
+        case '9':
+            board.Cells[row][col] = 9
+        }
+        row, col = NextCell(row, col)
+    }
+    return board
+}
+
+/* START BOARD FUNCTIONS */
 
 func (b *Board) Initialize() {
 	b.Cells = make([][]int, BOARD_SIZE)
@@ -38,6 +82,16 @@ func (b *Board) Print() {
         }
     }
     fmt.Println()
+}
+
+func (b *Board) ToString() string {
+    var buffer bytes.Buffer
+    for i := 0; i < BOARD_SIZE; i++ {
+        for j := 0; j < BOARD_SIZE; j++ {
+            buffer.WriteString(strconv.Itoa(b.Cells[i][j]))
+        }
+    }
+    return buffer.String()
 }
 
 func (b *Board) Copy() Board {
@@ -98,9 +152,6 @@ func (b *Board) IsSquareValid(r int, c int) bool {
 
 func IsValidSequence(slice []int) bool {
     nums := make([]bool, BOARD_SIZE + 1)
-    for i := 0; i < BOARD_SIZE + 1; i++ {
-        nums[i] = false
-    }
     for _, e := range slice {
         if e == 0 {
             continue
