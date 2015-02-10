@@ -19,7 +19,6 @@ func main() {
     board.Print()
     fmt.Println()
     fmt.Println("This problem created ", routines, " routines")
-    fmt.Println(board.ToString())
 }
 
 func sudokuSolver(b sudoku.Board, solution chan sudoku.Board) {
