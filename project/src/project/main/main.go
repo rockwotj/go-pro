@@ -2,12 +2,13 @@ package main
 
 import (
         "fmt"
+        "project/server"
 )
 
 func main() {
-   fmt.Println("Hello World!")
-   i := 5 + 3
-   fmt.Println(i)
+	fmt.Println("STARTING SERVER!")
+   	server.Start()
+   	fmt.Println("DONE WITH SERVER!")
 }
 
 

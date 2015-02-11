@@ -1,17 +1,28 @@
-package main 
+package server
 
 import (
-    "net/http"
-    "fmt"
+	"html/template"
+	"net/http"
 )
 
-// Default Request Handler
-func defaultHandler(w http.ResponseWriter, r *http.Request) {
-    fmt.Fprintf(w, "<h1>Hello %s!</h1>", r.URL.Path)
+type page struct {
+	Title string
+	Body  string
 }
 
-func main() {
-    http.HandleFunc("/", defaultHandler)
-    http.ListenAndServe(":8080", nil)
+var templates = template.Must(template.ParseFiles("./static/index.html"))
+
+func makeHandler(s string) func(http.ResponseWriter, *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		err := templates.ExecuteTemplate(w, "index.html", page{Body: s})
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
+	}
 }
 
+func Start() {
+	http.HandleFunc("/submit", makeHandler("You've submitted a photo!"))
+	http.HandleFunc("/", makeHandler("Please submit your photo, and we'll tell you if it is a sunset or not!"))
+	http.ListenAndServe(":8080", nil)
+}
