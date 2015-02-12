@@ -1,14 +1,14 @@
 package svm
 import (
-        "svm"
-        "fmt"
+//        "svm"
+//        "fmt"
         "testing"
 )
 
 
 
 func TestFirst(t *testing.T) {
-	data = [[0.0,0.0], [0.0,1.0],[1.0,0.0],[1.0,1.0]]
-	labels = [-1,1,1,-1]
-	svm.train(data,labels)
+        data := [][]float64{{0.0,0.0},{0.0,1.0},{1.0,0.0},{1.0,1.0}}
+	labels := []float64{-1,1,1,-1}
+	train(data,labels)
 }
