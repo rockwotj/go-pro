@@ -25,32 +25,41 @@ type milk struct {
 
 func (f fruit) getPrice() float64 {
 	if f.fresh {
-		return price
+		return f.price
 	} else {
-		0
+		return 0
 	}
 }
+func (m meat) getPrice() float64 {
+	return m.pounds * m.pricePerPound
+}
+// START SOLUTION
 
-// YOUR SOLUTION HERE
-
+// END SOLUTION
+	
 type result struct {
 	average float64
 	max float64
 	total float64
 }
 
-var groceryList = []groceryItem {
-	fruit{fresh:false, price:12.33},
-	fruit{fresh:true, price:2.33},
-	meat{pounds:3.3, pricePerPound:1.61},
-	meat{pounds:1.2, pricePerPound:24.1},
-	milk{gallons:.5, pricePerGallon: 4.33},
+func (r result) print() {
+	fmt.Println("Printing Results")
+	fmt.Println("Average:", r.average)
+	fmt.Println("Max:", r.max)
+	fmt.Println("Total:", r.total)	
 }
 
 func main() {
-	// We write some tests too
+	groceryList := []groceryItem {
+		fruit{fresh:false, price:12.33},
+		fruit{fresh:true, price:2.33},
+		meat{pounds:3.3, pricePerPound:1.61},
+		meat{pounds:1.2, pricePerPound:24.1},
+		milk{gallons:.5, pricePerGallon: 4.33},
+	}
 	channel := make(chan result)
-	go groceryListStats(channel)
+	go groceryListStats(groceryList, channel)
 	results := <-channel
-	fmt.Println(results)
+	results.print()
 }

@@ -30,68 +30,64 @@ func (f fruit) getPrice() float64 {
 		return 0
 	}
 }
-// START SOLUTION
 func (m meat) getPrice() float64 {
 	return m.pounds * m.pricePerPound
 }
+// START SOLUTION
 
 func (m milk) getPrice() float64 {
 	return m.gallons * m.pricePerGallon
 }
 
-type stat struct {
-	result float64
-	statType string
-}
-
-func groceryListStats(r chan result) {
+func groceryListStats(groceryList []groceryItem, r chan result) {
 	stats := result{}
-	results := make(chan stat)
+	averageResult := make(chan float64)
+	maxResult := make(chan float64)
+	totalResult := make(chan float64)
 
-	go getAverage(groceryList, results)
-	go getMax(groceryList, results)
-	go getTotal(groceryList, results)
+	go getAverage(groceryList, averageResult)
+	go getMax(groceryList, maxResult)
+	go getTotal(groceryList, totalResult)
 	
 	fmt.Println("Started All Calcs")
 	for i := 0; i < 3; i++ {
-		s := <-results
-		switch s.statType {
-		case "average":
-			stats.average = s.result
-		case "max":
-			stats.max = s.result
-		case "total":
-			stats.total = s.result
+		select {
+			case stats.total = <- totalResult:
+				fmt.Println("Recieved Total")
+			case stats.average = <- averageResult:
+				fmt.Println("Recieved Average")
+			case stats.max = <- maxResult:
+				fmt.Println("Recieved Max")
 		}
 	}
 	r <-stats
 }
 
-func getAverage (groceryList []groceryItem, results chan stat) {
+func getAverage (groceryList []groceryItem, results chan float64) {
 		ave := 0.0
 		for _, i := range groceryList {
 			ave += i.getPrice()
 		}
 		ave = ave / float64(len(groceryList))
-		results<-stat{result:ave, statType:"average"}
+		results<-ave
 	}
 
-func getMax (groceryList []groceryItem, results chan stat) {
+func getMax (groceryList []groceryItem, results chan float64) {
 		max := 0.0
 		for _, i := range groceryList {
 			if i.getPrice() > max {
 				max = i.getPrice()
 			}
 		}
-		results<-stat{result:max, statType:"max"}
+		results<-max
 	}
 
-func getTotal (groceryList []groceryItem, results chan stat) {
+func getTotal (groceryList []groceryItem, results chan float64) {
 		total := 0.0
 		for _, i := range groceryList {
 			total += i.getPrice()
 		}
-		results<-stat{result:total, statType:"total"}
+		results<-total
 	}
 
 // END SOLUTION
@@ -102,18 +98,23 @@ type result struct {
 	total float64
 }
 
-var groceryList = []groceryItem {
-	fruit{fresh:false, price:12.33},
-	fruit{fresh:true, price:2.33},
-	meat{pounds:3.3, pricePerPound:1.61},
-	meat{pounds:1.2, pricePerPound:24.1},
-	milk{gallons:.5, pricePerGallon: 4.33},
+func (r result) print() {
+	fmt.Println("Printing Results")
+	fmt.Println("Average:", r.average)
+	fmt.Println("Max:", r.max)
+	fmt.Println("Total:", r.total)	
 }
 
 func main() {
-	// We write some tests too
+	groceryList := []groceryItem {
+		fruit{fresh:false, price:12.33},
+		fruit{fresh:true, price:2.33},
+		meat{pounds:3.3, pricePerPound:1.61},
+		meat{pounds:1.2, pricePerPound:24.1},
+		milk{gallons:.5, pricePerGallon: 4.33},
+	}
 	channel := make(chan result)
-	go groceryListStats(channel)
+	go groceryListStats(groceryList, channel)
 	results := <-channel
-	fmt.Println(results)
+	results.print()
 }
