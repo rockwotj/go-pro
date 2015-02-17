@@ -10,6 +10,20 @@ import (
 )
 
 
+func predict(sample []float64, data [][]float64, labels []float64, alpha []float64) float64 {
+	N := len(data) // get length of data
+	class := 0.0
+	for j:=0; j<N; j++ {
+		class += alpha[j]*labels[j]*kernel(sample, data[j])
+	}
+
+	if class > 0 {
+		return 1
+	}
+	return -1
+}
+
+
 func train(data [][]float64, labels []float64) ([]float64, []float64){
 	rand.Seed( time.Now().UTC().UnixNano()) // seend random number generator
 
@@ -49,7 +63,7 @@ func train(data [][]float64, labels []float64) ([]float64, []float64){
 				}
 				margin2 := b
 				for k:=0; k<N; k++{
-					margin2 += alpha[k]*labels[i]*kernel(data[j],data[k])
+					margin2 += alpha[k]*labels[k]*kernel(data[j],data[k])
 				}
 				Ej := margin2 - labels[j]
 				
@@ -73,7 +87,7 @@ func train(data [][]float64, labels []float64) ([]float64, []float64){
 				}
 				//compute eta by eq 14
 				eta := 2 * kernel(data[i],data[j]) - kernel(data[i],data[i]) - kernel(data[j],data[j])
-				if eta > 0 {
+				if eta >= 0 {
 					continue
 				}
 
@@ -127,11 +141,25 @@ func train(data [][]float64, labels []float64) ([]float64, []float64){
 }
 
 
-// simple linear kernel (can switch to a more complex 'rbf' kernel later, if needed)
 func kernel(a []float64, b []float64) float64 {
+	return rbfkernel(a, b)
+}
+
+// simple linear kernel (can switch to a more complex 'rbf' kernel later, if needed)
+func linearkernel(a []float64, b []float64) float64 {
 	s := 0.0
 	for i:=0; i<len(a); i++ {
 		s += a[i]*b[i]
 	}
 	return s
+}
+
+
+func rbfkernel(a []float64, b []float64) float64 {
+	sigma := 0.5
+	s := 0.0
+	for i:=0; i<len(a); i++ {
+		s += (a[i] - b[i]) * (a[i] - b[i])
+	}
+	return math.Exp(-s / (2.0 * sigma * sigma))
 }
