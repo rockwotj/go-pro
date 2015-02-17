@@ -6,7 +6,14 @@
 </head>
 <body>
 <h1>Go Parallel Sunset Detector</h1>
+<p>Photos uploaded: {{.Count}}</p>
 <p>{{.Body}}</p>
+<form action="/receive" method="post" enctype="multipart/form-data">
+<label for="file">Filename:</label>
+<input type="file" name="file" id="file">
+<input type="submit" name="submit" value="Submit">
+</form>
+<br>
 <i>Created by: Tyler Rockwood, Asher Morgan, Jack Petry and AJ Piergiovanni</i>
 </body>
 </html>
