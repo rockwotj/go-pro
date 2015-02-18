@@ -13,7 +13,47 @@
 <input type="file" name="file" id="file">
 <input type="submit" name="submit" value="Submit">
 </form>
+<br><hr><br>
+<button onclick="getRandomSunset()" style="margin-right:50px">Get Random Sunset</button><button onclick="getRandomNonSunset()">Get Random Non-Sunset</button><br>
+<p>Powered by Bing</p>
 <br>
+<img id="img" src="" alt="click the button to get a random photo!" width="300px" height="300px">
+<form action="/receiveUrl" method="post">
+<input type="hidden" name="url" id="url" >
+<input id="photoSubmit" type="submit" name="submit" value="Submit Random Photo" disabled>
+</form>
+<hr><br>
 <i>Created by: Tyler Rockwood, Asher Morgan, Jack Petry and AJ Piergiovanni</i>
 </body>
+<script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
+<script type="text/javascript">
+
+function bingSearch(query) {
+	var API_KEY = "8BV1049qBkbiQ0jr8YhhD91x7+boMfBtw/Ngf23UgF0";
+	$.ajax
+  	({
+	    type: "GET",
+	    url: "https://api.datamarket.azure.com/Bing/Search/v1/Image?$format=json&Query=%27" + query + "%27",
+	    headers: {
+			"Authorization": "Basic " + btoa(API_KEY + ":" + API_KEY)
+		},
+	    success: function (result) {
+	    	var imageToGet = Math.floor(Math.random() * 49);
+		    $('#img').attr('src', result['d']['results'][imageToGet]['MediaUrl']);
+		    $('#url').attr('value', result['d']['results'][imageToGet]['MediaUrl']);
+		    $('#photoSubmit').removeAttr('disabled');
+	    }
+	});	
+
+}
+function getRandomSunset() {
+	var query = "sunset ocean";
+	bingSearch(query);
+}
+function getRandomNonSunset() {
+	var randomItems = ["cats", "dogs", "lettice", "yarn"];
+	var query = randomItems[Math.floor(Math.random() * 4)];
+	bingSearch(query);
+}
+</script>
 </html>
