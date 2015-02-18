@@ -47,6 +47,7 @@ func (m meat) getPrice() float64 {
 // define a struct for milk with fields: gallons and pricePerGallon as both float64 types (1 point)
 
 // Define a function to calculate the price of milk via: gallons * pricePerGallon
+// Do this in a way so that milk 'implements' groceryItem
 
 func groceryListStats(groceryList []groceryItem, r chan result) {
 	stats := result{}
