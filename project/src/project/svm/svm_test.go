@@ -9,29 +9,29 @@ import (
 func TestFirst(t *testing.T) {
         data := [][]float64{{0.0,0.0},{0.0,1.0},{1.0,0.0},{1.0,1.0}}
 	labels := []float64{-1,1,1,-1}
-	alpha, labels2 := train(data,labels)
+	Train(data,labels)
 	
 	sample1 := []float64{0.0,0.0}
-	class := predict(sample1, data, labels2, alpha)
+	class := Predict(sample1)
 	if class != -1 {
 		t.Errorf("Incorrect class, was %.0f expected -1", class)
 	}
 
 
 	sample2 := []float64{1.0,0.0}
-	class = predict(sample2, data, labels2, alpha)
+	class = Predict(sample2)
 	if class != 1 {
 		t.Errorf("Incorrect class, was %.0f expected 1", class)
 	}
 
 	sample3 := []float64{0.0,1.0}
-	class = predict(sample3, data, labels2, alpha)
+	class = Predict(sample3)
 	if class != 1 {
 		t.Errorf("Incorrect class, was %.0f expected 1", class)
 	}
 
 	sample4 := []float64{1.0,1.0}
-	class = predict(sample4, data, labels2, alpha)
+	class = Predict(sample4)
 	if class != -1 {
 		t.Errorf("Incorrect class, was %.0f expected -1", class)
 	}
@@ -57,26 +57,27 @@ func TestSecond(t *testing.T){
 		labelsNonsunset[i] = -1
 	}
 	labels := append(labelsSunset, labelsNonsunset...)
-	data := append(sunsets, nonsunsets...)
-	alpha, labels2 := train(data,labels)
+	data2 := append(sunsets, nonsunsets...)
+	data := NormalizeAll(data2)
+	Train(data,labels)
 
 	ts := imageProcessor.ProcessDirectory("../../../TestSunset/*.jpg")
 	tns := imageProcessor.ProcessDirectory("../../../TestNonsunsets/*.jpg")
 
-	class := predict(ts[0], data, labels2, alpha)
+	class := Predict(Normalize(ts[0]))
 	if class != 1 {
 		t.Errorf("Incorrect class, was %.0f expected 1", class)
 	}
-	class = predict(ts[50], data, labels2, alpha)
+	class = Predict(Normalize(ts[50]))
 	if class != 1 {
 		t.Errorf("Incorrect class, was %.0f expected 1", class)
 	}
 
-	class = predict(tns[0], data, labels2, alpha)
+	class = Predict(Normalize(tns[0]))
 	if class != -1 {
 		t.Errorf("Incorrect class, was %.0f expected -1", class)
 	}
-	class = predict(tns[0], data, labels2, alpha)
+	class = Predict(Normalize(tns[50]))
 	if class != -1 {
 		t.Errorf("Incorrect class, was %.0f expected -1", class)
 	}	
