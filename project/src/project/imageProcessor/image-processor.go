@@ -6,7 +6,7 @@ import (
     "image"
     "math"
     _ "image/jpeg"
-    "fmt"
+//    "fmt"
 )
 
 const GRIDS int = 7
