@@ -27,9 +27,9 @@ func predict(sample []float64, data [][]float64, labels []float64, alpha []float
 func train(data [][]float64, labels []float64) ([]float64, []float64){
 	rand.Seed( time.Now().UTC().UnixNano()) // seend random number generator
 
-	C := 1.0 // regularization parameter, lower value -> more regularization
+	C := 2.4 // regularization parameter, lower value -> more regularization
 	tol := 0.0001 // numerical tolerance (shouldn't be changed)
-	max_iter := 10000 // maximum number of iterations
+	max_iter := 1000 // maximum number of iterations
 	num_passes := 10 // number of without any change before we decide its converged
 
 	//kernel := "linear" // we can add "rbf" later, if we want to.
@@ -156,7 +156,7 @@ func linearkernel(a []float64, b []float64) float64 {
 
 
 func rbfkernel(a []float64, b []float64) float64 {
-	sigma := 0.5
+	sigma := 0.012
 	s := 0.0
 	for i:=0; i<len(a); i++ {
 		s += (a[i] - b[i]) * (a[i] - b[i])
