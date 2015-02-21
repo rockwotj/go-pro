@@ -6,6 +6,7 @@ import (
     "image"
     "math"
     _ "image/jpeg"
+    "fmt"
 )
 
 const GRIDS int = 7
@@ -107,16 +108,24 @@ func Process(filename string) []float64 {
     }
 
     return results
+}   
+
+func ProcessAsync(filename string, res chan []float64) {
+    res <- Process(filename)
 }
 
 func ProcessDirectory(directory string) [][]float64 {
     results := make([][]float64,0)
     files, _ := filepath.Glob(directory)
+    ch := make(chan []float64, len(files))
     for _, f := range files {
-	data := Process(f)
-	if data != nil {
-	    results = append(results,data)
-	}
+        go ProcessAsync(f,ch)
+    }
+    for _,_ = range files {
+        fRes := <-ch
+        if len(fRes) != 0 {
+            results = append(results,fRes)
+        }
     }
     return results
 }
