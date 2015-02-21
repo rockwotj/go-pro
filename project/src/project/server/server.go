@@ -151,6 +151,7 @@ func unzip(zipfile string, w http.ResponseWriter) {
     newDir := "./tmp/images" + strconv.Itoa(jipsUploaded) +"/"
     os.MkdirAll(newDir, 0777)
     fmt.Fprintf(w, "<table border='1' cellspacing='5' cellpadding='3'><tr><th>File</th><th>Sunset?</th></tr>")
+    var wg sync.WaitGroup
     for _, f := range reader.Reader.File {
         zipped, err := f.Open()
         if err != nil {
@@ -178,22 +179,28 @@ func unzip(zipfile string, w http.ResponseWriter) {
             fmt.Println("Decompressing : ", path)
             photosUploaded++
             unzippedFile := filepath.Join(newDir, f.Name)
-            copyFile(unzippedFile, path)
-            data := imageProcessor.Process(uploadedPath)
-            if data == nil {
-                fmt.Fprintf(w, "<tr><td>" + f.Name + "</td><td>Unknown</td></tr>")
+            wg.Add(1)
+            go func() {
+                defer wg.Done()
+                copyFile(unzippedFile, path)
+                data := imageProcessor.Process(uploadedPath)
+                if data == nil {
+                    fmt.Fprintf(w, "<tr><td>" + f.Name + "</td><td>Unknown</td></tr>")
+                    return
+                }
+                result := svm.Predict(data)
+                isSunset := "Unkown"
+                if result == 1 {
+                    isSunset = "Yes"
+                } else {
+                    isSunset = "No"
+                }
+                fmt.Fprintf(w, "<tr><td>" + f.Name + "</td><td>" + isSunset + "</td></tr>")
+                os.Remove(path)
             }
-            result := svm.Predict(data)
-            isSunset := "Unkown"
-            if result == 1 {
-                isSunset = "Yes"
-            } else {
-                isSunset = "No"
-            }
-            fmt.Fprintf(w, "<tr><td>" + f.Name + "</td><td>" + isSunset + "</td></tr>")
-            os.Remove(path)
         }
     }
+    wg.Wait()
     fmt.Fprintf(w, "</table>")
 }
 
