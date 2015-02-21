@@ -10,6 +10,8 @@ import (
 	"strconv"
 	"path/filepath"
 	"archive/zip"
+    "project/imageProcessor"
+    "project/svm"
 )
 
 type page struct {
@@ -71,7 +73,19 @@ func downloadHandler(w http.ResponseWriter, r *http.Request) {
         }
 
         fmt.Fprintf(w, "<table border='1' cellspacing='5' cellpadding='3'><tr><th>File</th><th>Sunset?</th></tr>")
-        fmt.Fprintf(w, "<tr><td>" + rawURL + "</td><td>Maybe</td></tr>")
+        data := imageProcessor.Process(uploadedPath)
+        if data == nil {
+            fmt.Fprintf(w, "Invalid image format!")
+            return
+        }
+        result := svm.Predict(data)
+        isSunset := "Unkown"
+        if result == 1 {
+            isSunset = "Yes"
+        } else {
+            isSunset = "No"
+        }
+        fmt.Fprintf(w, "<tr><td>" + rawURL + "</td><td>" + isSunset + "</td></tr>")
         fmt.Fprintf(w, "</table>")
  }
 
@@ -109,7 +123,19 @@ func downloadHandler(w http.ResponseWriter, r *http.Request) {
             os.RemoveAll(uploadedPath)
         } else {
             fmt.Fprintf(w, "<table border='1' cellspacing='5' cellpadding='3'><tr><th>File</th><th>Sunset?</th></tr>")
-            fmt.Fprintf(w, "<tr><td>" + header.Filename + "</td><td>Maybe</td></tr>")
+            data := imageProcessor.Process(uploadedPath)
+            if data == nil {
+                fmt.Fprintf(w, "Invalid image format!")
+                return
+            }
+            result := svm.Predict(data)
+            isSunset := "Unkown"
+            if result == 1 {
+                isSunset = "Yes"
+            } else {
+                isSunset = "No"
+            }
+            fmt.Fprintf(w, "<tr><td>" + header.Filename + "</td><td>" + isSunset + "</td></tr>")
             fmt.Fprintf(w, "</table>")
         }
  }
@@ -148,13 +174,24 @@ func unzip(zipfile string, w http.ResponseWriter) {
                 fmt.Println(err)
                 return
             }
-        writer.Close()
-        fmt.Println("Decompressing : ", path)
-        photosUploaded++
-        unzippedFile := filepath.Join(newDir, f.Name)
-        copyFile(unzippedFile, path)
-        fmt.Fprintf(w, "<tr><td>" + f.Name + "</td><td>Maybe</td></tr>")
-        os.Remove(path)
+            writer.Close()
+            fmt.Println("Decompressing : ", path)
+            photosUploaded++
+            unzippedFile := filepath.Join(newDir, f.Name)
+            copyFile(unzippedFile, path)
+            data := imageProcessor.Process(uploadedPath)
+            if data == nil {
+                fmt.Fprintf(w, "<tr><td>" + f.Name + "</td><td>Unknown</td></tr>")
+            }
+            result := svm.Predict(data)
+            isSunset := "Unkown"
+            if result == 1 {
+                isSunset = "Yes"
+            } else {
+                isSunset = "No"
+            }
+            fmt.Fprintf(w, "<tr><td>" + f.Name + "</td><td>" + isSunset + "</td></tr>")
+            os.Remove(path)
         }
     }
     fmt.Fprintf(w, "</table>")
