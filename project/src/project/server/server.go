@@ -69,8 +69,10 @@ func downloadHandler(w http.ResponseWriter, r *http.Request) {
         if err != nil {
             panic(err)
         }
-        fmt.Fprintf(w, "File uploaded successfully : ")
-        fmt.Fprintf(w, rawURL)
+
+        fmt.Fprintf(w, "<table border='1' cellspacing='5' cellpadding='3'><tr><th>File</th><th>Sunset?</th></tr>")
+        fmt.Fprintf(w, "<tr><td>" + rawURL + "</td><td>Maybe</td></tr>")
+        fmt.Fprintf(w, "</table>")
  }
 
  func uploadHandler(w http.ResponseWriter, r *http.Request) {
@@ -100,17 +102,19 @@ func downloadHandler(w http.ResponseWriter, r *http.Request) {
         if err != nil {
             fmt.Fprintln(w, err)
         }
-        fmt.Fprintf(w, "File uploaded successfully : ")
-        fmt.Fprintf(w, header.Filename)
         file.Close()
         out.Close()
         if strings.HasSuffix(header.Filename, ".zip") {
-        	unzip(uploadedPath)
+        	unzip(uploadedPath, w)
             os.RemoveAll(uploadedPath)
+        } else {
+            fmt.Fprintf(w, "<table border='1' cellspacing='5' cellpadding='3'><tr><th>File</th><th>Sunset?</th></tr>")
+            fmt.Fprintf(w, "<tr><td>" + header.Filename + "</td><td>Maybe</td></tr>")
+            fmt.Fprintf(w, "</table>")
         }
  }
 
-func unzip(zipfile string) {
+func unzip(zipfile string, w http.ResponseWriter) {
     reader, err := zip.OpenReader(zipfile)
     if err != nil {
         fmt.Println(err)
@@ -120,6 +124,7 @@ func unzip(zipfile string) {
     jipsUploaded++
     newDir := "./tmp/images" + strconv.Itoa(jipsUploaded) +"/"
     os.MkdirAll(newDir, 0777)
+    fmt.Fprintf(w, "<table border='1' cellspacing='5' cellpadding='3'><tr><th>File</th><th>Sunset?</th></tr>")
     for _, f := range reader.Reader.File {
         zipped, err := f.Open()
         if err != nil {
@@ -146,10 +151,13 @@ func unzip(zipfile string) {
         writer.Close()
         fmt.Println("Decompressing : ", path)
         photosUploaded++
-        copyFile(filepath.Join(newDir, f.Name), path)
+        unzippedFile := filepath.Join(newDir, f.Name)
+        copyFile(unzippedFile, path)
+        fmt.Fprintf(w, "<tr><td>" + f.Name + "</td><td>Maybe</td></tr>")
         os.Remove(path)
         }
     }
+    fmt.Fprintf(w, "</table>")
 }
 
 func copyFile(dst, src string) error {
