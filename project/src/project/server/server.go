@@ -12,6 +12,7 @@ import (
 	"archive/zip"
     "project/imageProcessor"
     "project/svm"
+    "sync"
 )
 
 type page struct {
@@ -21,26 +22,6 @@ type page struct {
 
 
 func Start() {
-	// load data to train SVM
-    sunsets := imageProcessor.ProcessDirectory("../../../TrainSunset/*.jpg")
-    nonsunsets := imageProcessor.ProcessDirectory("../../../TrainNonsunsets/*.jpg")
-    labelsSunset := make([]float64,len(sunsets))
-	// create labels
-    for i :=0; i < len(sunsets); i++{
-	labelsSunset[i] = 1
-    }
-    labelsNonsunset := make([]float64,len(nonsunsets))
-    for i :=0; i < len(nonsunsets); i++{
-	labelsNonsunset[i] = -1
-    }
-	// append everything
-    labels := append(labelsSunset, labelsNonsunset...)
-    data2 := append(sunsets, nonsunsets...)
-	// normalize and train
-    data := svm.NormalizeAll(data2)
-    svm.Train(data,labels)
-
-
     http.HandleFunc("/receiveUrl", downloadHandler)
     http.HandleFunc("/receive", uploadHandler)
     http.HandleFunc("/submit", makeHandler("submit.html", "unknown! The project is not finished yet, check back later"))
@@ -98,7 +79,7 @@ func downloadHandler(w http.ResponseWriter, r *http.Request) {
             fmt.Fprintf(w, "Invalid image format!")
             return
         }
-        result := svm.Predict(svm.Normalize(data))
+        result := svm.Predict(data)
         isSunset := "Unkown"
         if result == 1 {
             isSunset = "Yes"
@@ -203,7 +184,7 @@ func unzip(zipfile string, w http.ResponseWriter) {
             go func() {
                 defer wg.Done()
                 copyFile(unzippedFile, path)
-                data := imageProcessor.Process(uploadedPath)
+                data := imageProcessor.Process(unzippedFile)
                 if data == nil {
                     fmt.Fprintf(w, "<tr><td>" + f.Name + "</td><td>Unknown</td></tr>")
                     return
@@ -217,7 +198,7 @@ func unzip(zipfile string, w http.ResponseWriter) {
                 }
                 fmt.Fprintf(w, "<tr><td>" + f.Name + "</td><td>" + isSunset + "</td></tr>")
                 os.Remove(path)
-            }
+            }()
         }
     }
     wg.Wait()
