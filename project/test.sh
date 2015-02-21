@@ -1,2 +1,2 @@
 export GOPATH=$PWD
-go test project/main
+GOMAXPROCS=4 go test project/svm -v
