@@ -23,8 +23,9 @@ type page struct {
 
 func Start() {
     // load data to train SVM
-    sunsets := imageProcessor.ProcessDirectory("../../../TrainSunset/*.jpg")
-    nonsunsets := imageProcessor.ProcessDirectory("../../../TrainNonsunsets/*.jpg")
+    sunsets := imageProcessor.ProcessDirectory("./TrainSunset/*.jpg")
+    nonsunsets := imageProcessor.ProcessDirectory("./TrainNonsunsets/*.jpg")
+    fmt.Println(len(sunsets))
     labelsSunset := make([]float64,len(sunsets))
 	// create labels
     for i :=0; i < len(sunsets); i++{
