@@ -54,7 +54,8 @@ func NormalizeAll(data [][]float64) [][]float64 {
 func Predict(sample []float64) float64 {
 	class := 0.0
 	for j:=0; j<N; j++ {
-		class += alpha[j]*labels[j]*kernel(sample, f_data[j], true)
+//		fmt.Println("Kernel", kernel(sample, f_data[j], true))
+		class += alpha[j]*labels[j]*kernel(sample, f_data[j], false)
 	}
 	fmt.Println("%.2f", class)
 	if class > 0 {

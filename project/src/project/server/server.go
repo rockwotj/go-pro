@@ -100,7 +100,7 @@ func downloadHandler(w http.ResponseWriter, r *http.Request) {
             fmt.Fprintf(w, "Invalid image format!")
             return
         }
-        result := svm.Predict(data)
+        result := svm.Predict(svm.Normalize(data))
         isSunset := "Unknown"
         if result == 1 {
             isSunset = "Yes"
@@ -150,7 +150,7 @@ func downloadHandler(w http.ResponseWriter, r *http.Request) {
                 fmt.Fprintf(w, "Invalid image format!")
                 return
             }
-            result := svm.Predict(data)
+            result := svm.Predict(svm.Normalize(data))
             isSunset := "Unknown"
             if result == 1 {
                 isSunset = "Yes"
@@ -211,7 +211,7 @@ func unzip(zipfile string, w http.ResponseWriter) {
                     fmt.Fprintf(w, "<tr><td>" + filename + "</td><td>Unknown</td></tr>")
                     return
                 }
-                result := svm.Predict(data)
+		result := svm.Predict(svm.Normalize(data))
                 isSunset := "Unknown"
                 if result == 1 {
                     isSunset = "Yes"
