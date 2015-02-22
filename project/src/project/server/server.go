@@ -26,6 +26,7 @@ func Start() {
     sunsets := imageProcessor.ProcessDirectory("./TrainSunset/*.jpg")
     nonsunsets := imageProcessor.ProcessDirectory("./TrainNonsunsets/*.jpg")
     fmt.Println(len(sunsets))
+    fmt.Println(len(nonsunsets))
     labelsSunset := make([]float64,len(sunsets))
 	// create labels
     for i :=0; i < len(sunsets); i++{
@@ -41,7 +42,7 @@ func Start() {
 	// normalize and train
     data := svm.NormalizeAll(data2)
     svm.Train(data,labels)
-    fmt.Println("READY!")
+    fmt.Println("SVM TRAINED!")
     http.HandleFunc("/receiveUrl", downloadHandler)
     http.HandleFunc("/receive", uploadHandler)
     http.HandleFunc("/submit", makeHandler("submit.html", "unknown! The project is not finished yet, check back later"))
@@ -100,10 +101,10 @@ func downloadHandler(w http.ResponseWriter, r *http.Request) {
             return
         }
         result := svm.Predict(data)
-        isSunset := "Unkown"
+        isSunset := "Unknown"
         if result == 1 {
             isSunset = "Yes"
-        } else {
+        } else if result == -1 {
             isSunset = "No"
         }
         fmt.Fprintf(w, "<tr><td>" + rawURL + "</td><td>" + isSunset + "</td></tr>")
@@ -150,10 +151,10 @@ func downloadHandler(w http.ResponseWriter, r *http.Request) {
                 return
             }
             result := svm.Predict(data)
-            isSunset := "Unkown"
+            isSunset := "Unknown"
             if result == 1 {
                 isSunset = "Yes"
-            } else {
+            } else if result == -1 {
                 isSunset = "No"
             }
             fmt.Fprintf(w, "<tr><td>" + header.Filename + "</td><td>" + isSunset + "</td></tr>")
@@ -199,24 +200,25 @@ func unzip(zipfile string, w http.ResponseWriter) {
             writer.Close()
             fmt.Println("Decompressing : ", path)
             photosUploaded++
-            unzippedFile := filepath.Join(newDir, f.Name)
             wg.Add(1)
             go func() {
+                filename := f.Name
+                unzippedFile := filepath.Join(newDir, f.Name)
                 defer wg.Done()
                 copyFile(unzippedFile, path)
                 data := imageProcessor.Process(unzippedFile)
                 if data == nil {
-                    fmt.Fprintf(w, "<tr><td>" + f.Name + "</td><td>Unknown</td></tr>")
+                    fmt.Fprintf(w, "<tr><td>" + filename + "</td><td>Unknown</td></tr>")
                     return
                 }
                 result := svm.Predict(data)
-                isSunset := "Unkown"
+                isSunset := "Unknown"
                 if result == 1 {
                     isSunset = "Yes"
-                } else {
+                } else if result == -1 {
                     isSunset = "No"
                 }
-                fmt.Fprintf(w, "<tr><td>" + f.Name + "</td><td>" + isSunset + "</td></tr>")
+                fmt.Fprintf(w, "<tr><td>" + filename + "</td><td>" + isSunset + "</td></tr>")
                 os.Remove(path)
             }()
         }
