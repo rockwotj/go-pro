@@ -201,17 +201,16 @@ func unzip(zipfile string, w http.ResponseWriter) {
             fmt.Println("Decompressing : ", path)
             photosUploaded++
             wg.Add(1)
-            go func() {
-                filename := f.Name
-                unzippedFile := filepath.Join(newDir, f.Name)
+            go func(filename, fpath string) {
+                unzippedFile := filepath.Join(newDir, filename)
                 defer wg.Done()
-                copyFile(unzippedFile, path)
+                copyFile(unzippedFile, fpath)
                 data := imageProcessor.Process(unzippedFile)
                 if data == nil {
                     fmt.Fprintf(w, "<tr><td>" + filename + "</td><td>Unknown</td></tr>")
                     return
                 }
-		result := svm.Predict(svm.Normalize(data))
+		        result := svm.Predict(svm.Normalize(data))
                 isSunset := "Unknown"
                 if result == 1 {
                     isSunset = "Yes"
@@ -219,8 +218,8 @@ func unzip(zipfile string, w http.ResponseWriter) {
                     isSunset = "No"
                 }
                 fmt.Fprintf(w, "<tr><td>" + filename + "</td><td>" + isSunset + "</td></tr>")
-                os.Remove(path)
-            }()
+                os.Remove(fpath)
+            }(f.Name, path)
         }
     }
     wg.Wait()
